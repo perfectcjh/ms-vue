@@ -1,24 +1,16 @@
 # ms-web-vue
 
-## Project setup
+## 技术栈
+Vue + Typescript + Element-ui + Vuex
+
+## 项目安装
 ```
 yarn install
 ```
 
-### Compiles and hot-reloads for development
+### 项目运行
 ```
-yarn serve
+yarn serve  // Compiles and hot-reloads for development
+yarn build  // Compiles and minifies for production
+yarn lint   // Lints and fixes files
 ```
-
-### Compiles and minifies for production
-```
-yarn build
-```
-
-### Lints and fixes files
-```
-yarn lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
