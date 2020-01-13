@@ -11,14 +11,14 @@ interface ISettings {
 
 // You can customize below settings :)
 const settings: ISettings = {
-  title: '',
+  title: 'Vue Typescript Admin',
   showSettings: true,
   fixedHeader: false,
   showSidebarLogo: false,
   errorLog: ['production'],
   sidebarTextTheme: true,
-  devServerPort: 9000,
-  mockServerPort: 9999
+  devServerPort: 9527,
+  mockServerPort: 9528
 }
 
 export default settings
