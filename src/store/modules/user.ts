@@ -44,10 +44,10 @@ class User extends VuexModule implements IUserState {
   public async Login(params: any) {
     let { mobilePhone, password, router } = params
     mobilePhone = mobilePhone.trim()
-    const { data } = await login({ mobilePhone, password })
-    console.log(`Bearer ${data.id_token}`)
-    setToken(`Bearer ${data.id_token}`)
-    this.SET_TOKEN(`Bearer ${data.id_token}`)
+    // const { data } = await login({ mobilePhone, password })
+    // console.log(`Bearer ${data.id_token}`)
+    // setToken(`Bearer ${data.id_token}`)
+    // this.SET_TOKEN(`Bearer ${data.id_token}`)
     router.push('/')
   }
 

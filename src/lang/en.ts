@@ -9,9 +9,10 @@ export default {
     sendRecord: 'Send Record'
   },
   login: {
-    mobilePhone: 'Please enter your mobile number',
-    password: 'Please enter your Password',
-    btn: 'login'
+    username: 'Please enter your username',
+    password: 'Please enter your password',
+    btn: 'login',
+    title: 'MSWEB'
   },
   table: {
     payNo: 'payNo',

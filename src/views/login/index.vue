@@ -1,166 +1,249 @@
 <template>
-    <div class="login-container">
-        <LoginCanvas/>
-        <section>
-            <div>
-                <span>ts demo</span>
-                <lang-select class="set-language" />
-            </div>
-            <el-form
-                status-icon
-                ref="loginForm"
-                :model="loginForm"
-                :rules="loginRules"
-                class="login-form">
-                <el-form-item prop="mobilePhone">
-                    <el-input
-                        type="password"
-                        autocomplete="off"
-                        :placeholder="$t('login.mobilePhone')"
-                        v-model="loginForm.mobilePhone"
-                    >
-                    </el-input>
-                </el-form-item>
-                <el-form-item prop="password">
-                    <el-input
-                        type="password"
-                        autocomplete="off"
-                        :placeholder="$t('login.password')"
-                        v-model="loginForm.password"
-                    >
-                    </el-input>
-                </el-form-item>
-                <footer>
-                    <el-button type="primary" @click.native.prevent="handleLogin">{{$t('login.btn')}}</el-button>
-                </footer>
-            </el-form>
-        </section>
-    </div>
+  <div class="login-container">
+    <el-form
+      ref="loginForm"
+      :model="loginForm"
+      :rules="loginRules"
+      class="login-form"
+      autocomplete="on"
+      label-position="left"
+    >
+      <div class="title-container">
+        <h3 class="title">
+          {{ $t('login.title') }}
+        </h3>
+      </div>
+
+      <el-form-item prop="username">
+        <span class="svg-container">
+          <svg-icon name="user" />
+        </span>
+        <el-input
+          ref="username"
+          v-model="loginForm.username"
+          :placeholder="$t('login.username')"
+          name="username"
+          type="text"
+          autocomplete="on"
+        />
+      </el-form-item>
+
+      <el-form-item prop="password">
+        <span class="svg-container">
+          <svg-icon name="password" />
+        </span>
+        <el-input
+          :key="passwordType"
+          ref="password"
+          v-model="loginForm.password"
+          :type="passwordType"
+          :placeholder="$t('login.password')"
+          name="password"
+          autocomplete="on"
+          @keyup.enter.native="handleLogin"
+        />
+        <span
+          class="show-pwd"
+          @click="showPwd"
+        >
+          <svg-icon :name="passwordType === 'password' ? 'eye-off' : 'eye-on'" />
+        </span>
+      </el-form-item>
+
+      <el-button
+        :loading="loading"
+        type="primary"
+        style="width:100%; margin-bottom:30px;"
+        @click.native.prevent="handleLogin"
+      >
+        {{ $t('login.btn') }}
+      </el-button>
+    </el-form>
+  </div>
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Watch } from 'vue-property-decorator'
+import { Route } from 'vue-router'
+import { Dictionary } from 'vue-router/types/router'
 import { Form as ElForm, Input } from 'element-ui'
 import { UserModule } from '@/store/modules/user'
-import LangSelect from '@/components/LangSelect/index.vue'
-import LoginCanvas from './login-canvas.vue'
+import { isValidUsername } from '@/utils/validate'
 
 @Component({
-    name: 'login',
-    components: {
-        LangSelect,
-        LoginCanvas
-    }
+  name: 'Login'
 })
-
 export default class extends Vue {
-
-    private validateMobilePhone = (rule: any, value: string, callback: Function) => {
-        if (!value.trim()) {
-            callback(new Error('Please enter the correct mobilePhone'))
-        } else {
-            callback()
-        }
+  private validateUsername = (rule: any, value: string, callback: Function) => {
+    if (!isValidUsername(value)) {
+      callback(new Error('Please enter the correct user name'))
+    } else {
+      callback()
     }
-
-    private validatePassword = (rule: any, value: string, callback: Function) => {
-        if (value.length < 6) {
-            callback(new Error('The password can not be less than 6 digits'))
-        } else {
-            callback()
-        }
+  }
+  private validatePassword = (rule: any, value: string, callback: Function) => {
+    if (value.length < 6) {
+      callback(new Error('The password can not be less than 6 digits'))
+    } else {
+      callback()
     }
+  }
+  private loginForm = {
+    username: 'admin',
+    password: '111111'
+  }
+  private loginRules = {
+    username: [{ validator: this.validateUsername, trigger: 'blur' }],
+    password: [{ validator: this.validatePassword, trigger: 'blur' }]
+  }
+  private passwordType = 'password'
+  private loading = false
+  private redirect?: string
+  private otherQuery: Dictionary<string> = {}
 
-    private loginRules = {
-        mobilePhone: [{ validator: this.validateMobilePhone, trigger: 'blur' }],
-        password: [{ validator: this.validatePassword, trigger: 'blur' }]
+  @Watch('$route', { immediate: true })
+  private onRouteChange(route: Route) {
+    // TODO: remove the "as Dictionary<string>" hack after v4 release for vue-router
+    // See https://github.com/vuejs/vue-router/pull/2050 for details
+    const query = route.query as Dictionary<string>
+    if (query) {
+      this.redirect = query.redirect
+      this.otherQuery = this.getOtherQuery(query)
     }
+  }
 
-    private loading = false
-    private loginForm = {
-        mobilePhone: '17091647779',
-        password: 'a123456'
+  mounted() {
+    if (this.loginForm.username === '') {
+      (this.$refs.username as Input).focus()
+    } else if (this.loginForm.password === '') {
+      (this.$refs.password as Input).focus()
     }
+  }
 
-    created() {
+  private showPwd() {
+    if (this.passwordType === 'password') {
+      this.passwordType = ''
+    } else {
+      this.passwordType = 'password'
     }
+    this.$nextTick(() => {
+      (this.$refs.password as Input).focus()
+    })
+  }
 
-    private handleLogin() {
-        (this.$refs.loginForm as ElForm).validate(async (valid: boolean) => {
-            console.log(typeof this.$router)
-            if (valid) {
-                this.loading = true
-                await UserModule.Login({
-                    ...this.loginForm,
-                    router: this.$router
-                })
-
-                setTimeout(() => {
-                    this.loading = false
-                }, 0.5 * 1000)
-            } else {
-                return false
-            }
+  private handleLogin() {
+    (this.$refs.loginForm as ElForm).validate(async(valid: boolean) => {
+      if (valid) {
+        this.loading = true
+        await UserModule.Login(this.loginForm)
+        this.$router.push({
+          path: this.redirect || '/',
+          query: this.otherQuery
         })
+        setTimeout(() => {
+          this.loading = false
+        }, 0.5 * 1000)
+      } else {
+        return false
+      }
+    })
+  }
 
-    }
+  private getOtherQuery(query: Dictionary<string>) {
+    return Object.keys(query).reduce((acc, cur) => {
+      if (cur !== 'redirect') {
+        acc[cur] = query[cur]
+      }
+      return acc
+    }, {} as Dictionary<string>)
+  }
+}
+</script>
+
+<style lang="scss">
+@supports (-webkit-mask: none) and (not (cater-color: $loginCursorColor)) {
+  .login-container .el-input {
+    input { color: $loginCursorColor; }
+    input::first-line { color: $lightGray; }
+  }
 }
 
+.login-container {
+  .el-input {
+    display: inline-block;
+    height: 47px;
+    width: 85%;
 
-</script>
+    input {
+      height: 47px;
+      background: transparent;
+      border: 0px;
+      border-radius: 0px;
+      padding: 12px 5px 12px 15px;
+      color: $lightGray;
+      caret-color: $loginCursorColor;
+      -webkit-appearance: none;
+
+      &:-webkit-autofill {
+        box-shadow: 0 0 0px 1000px $loginBg inset !important;
+        -webkit-text-fill-color: #fff !important;
+      }
+    }
+  }
+
+  .el-form-item {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    color: #454545;
+  }
+}
+</style>
 
 <style lang="scss" scoped>
 .login-container {
-    height: 100%;
-    width: 100%;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  background-color: $loginBg;
+
+  .login-form {
+    position: relative;
+    width: 520px;
+    max-width: 100%;
+    padding: 160px 35px 0;
+    margin: 0 auto;
     overflow: hidden;
-    background-color: $loginBg;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
+  }
+
+  .svg-container {
+    padding: 6px 5px 6px 15px;
+    color: $darkGray;
+    vertical-align: middle;
+    width: 30px;
+    display: inline-block;
+  }
+
+  .title-container {
     position: relative;
 
-    >section {
-        position: absolute;
-        background-color: rgba(250, 250, 250, 0.8);
-        border-radius: 5px;
-        >div {
-            width: 300px;
-            position: relative;
-            height: 80px;
-            text-align: center;
-            >span {
-                line-height: 80px;
-                font-size: 30px;
-                color: #000;
-                display: inline-block;
-                text-align: center;
-            }
-            .international {
-                position: absolute;
-                right: 0;
-                top: 33px;
-                right: 20px;
-                cursor: pointer;
-            }
-        }
-
-        .login-form {
-            padding: 30px 20px 20px 20px;
-            position: relative;
-            width: 300px;
-            max-width: 300px;
-            margin: 0 auto;
-            overflow: hidden;
-            >footer {
-                text-align: center;
-                width: 100%;
-                >button {
-                    width: 100%;
-                }
-            }
-        }
+    .title {
+      font-size: 26px;
+      color: $lightGray;
+      margin: 0px auto 40px auto;
+      text-align: center;
+      font-weight: bold;
     }
+  }
+
+  .show-pwd {
+    position: absolute;
+    right: 10px;
+    top: 7px;
+    font-size: 16px;
+    color: $darkGray;
+    cursor: pointer;
+    user-select: none;
+  }
 }
 </style>

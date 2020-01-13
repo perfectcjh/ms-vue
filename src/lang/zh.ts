@@ -9,9 +9,10 @@ export default {
     sendRecord: '第三步'
   },
   login: {
-    mobilePhone: '请输入手机号码',
+    username: '请输入手机号码',
     password: '请输入密码',
-    btn: '登录'
+    btn: '登录',
+    title: 'MSWEB'
   },
   table: {
     payNo: '流水号',
