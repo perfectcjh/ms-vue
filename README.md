@@ -1,4 +1,4 @@
-# ms-vue
+# ms-web-vue
 
 ## Project setup
 ```
