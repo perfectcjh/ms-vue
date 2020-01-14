@@ -1,7 +1,6 @@
 import axios from 'axios'
 import { Message, MessageBox } from 'element-ui'
 import { UserModule } from '@/store/modules/user'
-import store from '@/store'
 
 const service = axios.create({
   baseURL: process.env.VUE_APP_BASE_API, // url = base url + request url
@@ -11,45 +10,61 @@ const service = axios.create({
 
 // Request interceptors
 service.interceptors.request.use(
-  config => {
+  (config) => {
     // Add X-Access-Token header to every request, you can add other custom headers here
-    if (UserModule.id_token) {
-      config.headers['Authorization'] = UserModule.id_token
+    if (UserModule.token) {
+      config.headers['X-Access-Token'] = UserModule.token
     }
     return config
   },
-  error => {
+  (error) => {
     Promise.reject(error)
   }
 )
 
 // Response interceptors
 service.interceptors.response.use(
-  response => {
-    return Promise.resolve(response)
-  },
-  error => {
-    if (error.response.status === 401 || error.response.status === 403) {
-      UserModule.ResetToken()
-      location.reload()
-    }
-    /* eslint-disable */
-    if (error.response.data.code == '2000009') {
-      return Promise.reject(error)
-    }
-    var message =
-      (error.response && error.response.data.message) ||
-      (error.message.indexOf('timeout') > -1 ? '请求超时' : error.message)
-    if (
-      navigator.userAgent.match(
-        /(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i
-      )
-    ) {
-      Message({ message: message, type: 'error' })
+  (response) => {
+    // Some example codes here:
+    // code == 20000: success
+    // code == 50001: invalid access token
+    // code == 50002: already login in other place
+    // code == 50003: access token expired
+    // code == 50004: invalid user (user not exist)
+    // code == 50005: username or password is incorrect
+    // You can change this part for your own usage.
+    const res = response.data
+    if (res.code !== 20000) {
+      Message({
+        message: res.message || 'Error',
+        type: 'error',
+        duration: 5 * 1000
+      })
+      if (res.code === 50008 || res.code === 50012 || res.code === 50014) {
+        MessageBox.confirm(
+          '你已被登出，可以取消继续留在该页面，或者重新登录',
+          '确定登出',
+          {
+            confirmButtonText: '重新登录',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }
+        ).then(() => {
+          UserModule.ResetToken()
+          location.reload() // To prevent bugs from vue-router
+        })
+      }
+      return Promise.reject(new Error(res.message || 'Error'))
     } else {
-      console.log(error)
-      MessageBox.alert(message, '错误提示', { type: 'error' })
+      return response.data
     }
+  },
+  (error) => {
+    Message({
+      message: error.message,
+      type: 'error',
+      duration: 5 * 1000
+    })
     return Promise.reject(error)
   }
 )

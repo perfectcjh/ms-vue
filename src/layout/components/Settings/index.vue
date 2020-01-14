@@ -2,13 +2,38 @@
   <div class="drawer-container">
     <div>
       <h3 class="drawer-title">
-        系统布局配置
+        {{ $t('settings.title') }}
       </h3>
 
-      <!-- <div class="drawer-item">
+      <div class="drawer-item">
         <span>{{ $t('settings.theme') }}</span>
         <theme-picker
+          style="float: right;height: 26px;margin: -3px 8px 0 0;"
           @change="themeChange"
+        />
+      </div>
+
+      <div class="drawer-item">
+        <span>{{ $t('settings.showTagsView') }}</span>
+        <el-switch
+          v-model="showTagsView"
+          class="drawer-switch"
+        />
+      </div>
+
+      <div class="drawer-item">
+        <span>{{ $t('settings.showSidebarLogo') }}</span>
+        <el-switch
+          v-model="showSidebarLogo"
+          class="drawer-switch"
+        />
+      </div>
+
+      <div class="drawer-item">
+        <span>{{ $t('settings.fixedHeader') }}</span>
+        <el-switch
+          v-model="fixedHeader"
+          class="drawer-switch"
         />
       </div>
 
@@ -18,7 +43,7 @@
           v-model="sidebarTextTheme"
           class="drawer-switch"
         />
-      </div> -->
+      </div>
     </div>
   </div>
 </template>
@@ -35,6 +60,29 @@ import ThemePicker from '@/components/ThemePicker/index.vue'
   }
 })
 export default class extends Vue {
+  get fixedHeader() {
+    return SettingsModule.fixedHeader
+  }
+
+  set fixedHeader(value) {
+    SettingsModule.ChangeSetting({ key: 'fixedHeader', value })
+  }
+
+  get showTagsView() {
+    return SettingsModule.showTagsView
+  }
+
+  set showTagsView(value) {
+    SettingsModule.ChangeSetting({ key: 'showTagsView', value })
+  }
+
+  get showSidebarLogo() {
+    return SettingsModule.showSidebarLogo
+  }
+
+  set showSidebarLogo(value) {
+    SettingsModule.ChangeSetting({ key: 'showSidebarLogo', value })
+  }
 
   get sidebarTextTheme() {
     return SettingsModule.sidebarTextTheme

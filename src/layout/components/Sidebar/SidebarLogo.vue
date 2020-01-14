@@ -42,7 +42,7 @@ import { Component, Prop, Vue } from 'vue-property-decorator'
 export default class extends Vue {
   @Prop({ required: true }) private collapse!: boolean
 
-  private title = 'TsDemo'
+  private title = 'ms-web'
 }
 </script>
 
@@ -61,7 +61,7 @@ export default class extends Vue {
   width: 100%;
   height: 50px;
   line-height: 50px;
-  background: rgb(0, 21, 41);
+  background: #2b2f3a;
   text-align: center;
   overflow: hidden;
 

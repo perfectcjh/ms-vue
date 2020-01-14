@@ -1,6 +1,7 @@
 <template>
-  <div>
+  <div :class="{'has-logo': showLogo}">
     <sidebar-logo
+      v-if="showLogo"
       :collapse="isCollapse"
     />
     <el-scrollbar wrap-class="scrollbar-wrapper">
@@ -33,7 +34,7 @@ import { PermissionModule } from '@/store/modules/permission'
 import { SettingsModule } from '@/store/modules/settings'
 import SidebarItem from './SidebarItem.vue'
 import SidebarLogo from './SidebarLogo.vue'
-import variables from '@/styles/variables.scss'
+import variables from '@/styles/_variables.scss'
 
 @Component({
   name: 'SideBar',
@@ -43,13 +44,16 @@ import variables from '@/styles/variables.scss'
   }
 })
 export default class extends Vue {
+  get sidebar() {
+    return AppModule.sidebar
+  }
+
   get routes() {
-    console.log(PermissionModule.routes)
     return PermissionModule.routes
   }
 
-  get sidebar() {
-    return AppModule.sidebar
+  get showLogo() {
+    return SettingsModule.showSidebarLogo
   }
 
   get menuActiveTextColor() {
@@ -122,28 +126,5 @@ export default class extends Vue {
   border: none;
   height: 100%;
   width: 100% !important;
-  background-color: rgb(0, 21, 41) !important;
-
-  /deep/ .el-menu-item{
-    background-color: rgb(0, 21, 41) !important;
-    &:hover {
-      background-color: #011D38 !important;
-      border-left: 2px solid rgba(52, 129, 251, 0.5);
-    }
-    &.is-active {
-      background-color: #011D38 !important;
-      border-left: 2px solid rgba(52, 129, 251, 0.5);
-    }
-  }
-
-  /deep/ .el-submenu__title {
-    background-color: rgb(0, 21, 41) !important;
-    &:hover {
-      background-color: #011D38 !important;
-      border-left: 2px solid rgba(52, 129, 251, 0.5);
-    }
-  }
 }
-
-
 </style>

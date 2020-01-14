@@ -10,7 +10,8 @@ yarn install
 
 ### 项目运行
 ```
-yarn serve  // Compiles and hot-reloads for development
-yarn build  // Compiles and minifies for production
+yarn dev  // dev
+yarn serve  // serve
+yarn build  // build
 yarn lint   // Lints and fixes files
 ```
