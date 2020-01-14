@@ -1,5 +1,7 @@
 # ms-web-vue
 
+基于Vue的后台管理系统通用模板
+
 ## 技术栈
 Vue + Typescript + Element-ui + Vuex
 
